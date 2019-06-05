@@ -1,0 +1,3 @@
+cmake-build-*/*
+communication_log/*
+.idea/*
