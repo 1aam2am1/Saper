@@ -26,13 +26,19 @@ public:
 
     void enable_bombs(bool en = false);
 
+    void boot_turn();
+
     void leftMousePressed(tgui::Vector2f pos) override;
 
     void leftMouseReleased(tgui::Vector2f pos) override;
 
+    void leftMouseCell(int x, int y);
+
     void rightMousePressed(tgui::Vector2f pos) override;
 
     void rightMouseReleased(tgui::Vector2f pos) override;
+
+    void rightMouseCell(int x, int y);
 
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 

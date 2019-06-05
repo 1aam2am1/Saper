@@ -101,57 +101,61 @@ void Saper::leftMouseReleased(tgui::Vector2f pos) {
     int y = pos.y / cell_width;
 
     if (clicked_cell_x == x && clicked_cell_y == y) {
-        if (map.size() > x && map.size() > y) {
-            if (map[x][y].marked_as_bomb) { return; }
-            if (map[x][y].bomb) {
-                onGameOver.emit(this, "Game Over (LOSER!!!)");
-                game_over = true;
-            } else {
-                /**Show adll not shown tiles*/
-                std::stack<std::pair<int, int>> to_shown;
+        leftMouseCell(x, y);
+    }
 
-                to_shown.emplace(x, y);
+    ClickableWidget::leftMouseReleased(pos);
+}
 
-                while (!to_shown.empty()) {
-                    auto tile = to_shown.top();
-                    to_shown.pop();
+void Saper::leftMouseCell(int x, int y) {
+    if (map.size() > x && map.size() > y) {
+        if (map[x][y].marked_as_bomb) { return; }
+        if (map[x][y].bomb) {
+            onGameOver.emit(this, "Game Over (LOSER!!!)");
+            game_over = true;
+        } else {
+            /**Show adll not shown tiles*/
+            std::stack<std::pair<int, int>> to_shown;
 
-                    map[tile.first][tile.second].shown = true;
-                    if (map[tile.first][tile.second].bomb_count != 0) { continue; }
+            to_shown.emplace(x, y);
 
-                    for (int i = 0; i < 3; ++i) {
-                        for (int j = 0; j < 3; ++j) {
-                            int next_x = i + tile.first - 1;
-                            int next_y = j + tile.second - 1;
-                            if (next_x >= 0 && next_y >= 0 && next_x < map.size() && next_y < map.size()) {
-                                if (!map[next_x][next_y].shown) {
-                                    to_shown.emplace(next_x, next_y);
-                                }
+            while (!to_shown.empty()) {
+                auto tile = to_shown.top();
+                to_shown.pop();
+
+                map[tile.first][tile.second].shown = true;
+                if (map[tile.first][tile.second].bomb_count != 0) { continue; }
+
+                for (int i = 0; i < 3; ++i) {
+                    for (int j = 0; j < 3; ++j) {
+                        int next_x = i + tile.first - 1;
+                        int next_y = j + tile.second - 1;
+                        if (next_x >= 0 && next_y >= 0 && next_x < map.size() && next_y < map.size()) {
+                            if (!map[next_x][next_y].shown) {
+                                to_shown.emplace(next_x, next_y);
                             }
                         }
                     }
                 }
-
-                /**Check if we have win*/
-                bool win = true;
-                for (int i = 0; i < map.size(); ++i) {
-                    for (int j = 0; j < map.size(); ++j) {
-                        if (!(map[i][j].shown | map[i][j].bomb)) {
-                            win = false;
-                        }
-                    }
-                }
-                if (win) {
-                    game_over = true;
-                    onGameOver.emit(this, "Game Over (WINNER!!!)");
-                }
             }
 
-            this->updatehints();
+            /**Check if we have win*/
+            bool win = true;
+            for (int i = 0; i < map.size(); ++i) {
+                for (int j = 0; j < map.size(); ++j) {
+                    if (!(map[i][j].shown | map[i][j].bomb)) {
+                        win = false;
+                    }
+                }
+            }
+            if (win) {
+                game_over = true;
+                onGameOver.emit(this, "Game Over (WINNER!!!)");
+            }
         }
-    }
 
-    ClickableWidget::leftMouseReleased(pos);
+        this->updatehints();
+    }
 }
 
 void Saper::rightMousePressed(tgui::Vector2f pos) {
@@ -174,13 +178,19 @@ void Saper::rightMouseReleased(tgui::Vector2f pos) {
     int y = pos.y / cell_width;
 
     if (clicked_cell_x == x && clicked_cell_y == y) {
-        if (map.size() > x && map.size() > y) {
-            map[x][y].marked_as_bomb = !map[x][y].marked_as_bomb;
-        }
+        rightMouseCell(x, y);
     }
 
-
     Widget::rightMouseReleased(pos);
+
+}
+
+void Saper::rightMouseCell(int x, int y) {
+
+    if (map.size() > x && map.size() > y) {
+        map[x][y].marked_as_bomb = !map[x][y].marked_as_bomb;
+    }
+
 }
 
 
@@ -369,6 +379,37 @@ void Saper::updatehints() {
                     }
                 }
             }
+        }
+    }
+
+}
+
+void Saper::boot_turn() {
+    if (game_over) { return; }
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<> dist(0, map.size() - 1);
+
+    for (int i = 0; i < map.size(); ++i) {
+        for (int j = 0; j < map[i].size(); ++j) {
+            if (!map[i][j].shown && map[i][j].have_hints && map[i][j].bomb_probability == 0) {
+                leftMouseCell(i, j);
+                return;
+            } else if (!map[i][j].shown && map[i][j].have_hints && map[i][j].bomb_probability == 100 &&
+                       !map[i][j].marked_as_bomb) {
+                rightMouseCell(i, j);
+                return;
+            }
+        }
+    }
+
+    while (true) {
+        int i = dist(mt);
+        int j = dist(mt);
+
+        if (!map[i][j].shown) {
+            leftMouseCell(i, j);
+            return;
         }
     }
 

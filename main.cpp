@@ -105,7 +105,7 @@ void load(tgui::Gui &gui) {
 
         {
             auto button = tgui::Button::create("Start");
-            button->setPosition("(&.width - width)/2", "50");
+            button->setPosition("(&.width - width)/2", 50);
             button->connect("Pressed", [=, &gui]() {
                 game->run(convertString(size->getText()), convertString(bomb_count->getText()));
             });
@@ -131,7 +131,15 @@ void load(tgui::Gui &gui) {
 
             p1->add(checkbox);
         }
+        {
+            auto button = tgui::Button::create("Computer turn");
+            button->setPosition("(&.width - width)/2", 125);
+            button->connect("Pressed", [=, &gui]() {
+                game->boot_turn();
+            });
 
+            p1->add(button);
+        }
 
     }
     catch (const tgui::Exception &e) {
