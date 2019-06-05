@@ -245,16 +245,6 @@ void Saper::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 
                     target.draw(small_text, states);
                 }
-
-                {
-                    small_text.setString(convertInt(map[i][j].neighbor_count));
-
-                    small_text.setPosition(
-                            i * cell_width + cell_width - cell_width / 2 - small_text.getLocalBounds().width,
-                            j * cell_width);
-
-                    target.draw(small_text, states);
-                }
             }
         }
     }
@@ -378,7 +368,6 @@ void Saper::updatehints() {
                         change = true;
                     }
                 }
-                map[i][j].neighbor_count = check_how_many(i, j, map);
             }
         }
     }

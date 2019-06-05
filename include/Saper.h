@@ -53,8 +53,6 @@ private:
 
         int bomb_probability = 0;
         bool have_hints = false;
-
-        int neighbor_count = 0;
     };
 
     std::vector<std::vector<Tile>> map;
