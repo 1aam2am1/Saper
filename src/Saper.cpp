@@ -403,6 +403,26 @@ void Saper::boot_turn() {
         }
     }
 
+    int all_not_shown = 0;
+    for (int i = 0; i < map.size(); ++i) {
+        for (int j = 0; j < map.size(); ++j) {
+            if (!map[i][j].shown && !map[i][j].marked_as_bomb) { all_not_shown += 1; }
+        }
+    }
+    std::uniform_int_distribution<> dist2(0, all_not_shown);
+
+    int los = dist2(mt);
+    all_not_shown = 0;
+    for (int i = 0; i < map.size(); ++i) {
+        for (int j = 0; j < map.size(); ++j) {
+            if (los == all_not_shown) {
+                leftMouseCell(i, j);
+                return;
+            }
+            if (!map[i][j].shown && !map[i][j].marked_as_bomb) { all_not_shown += 1; }
+        }
+    }
+    /*
     while (true) {
         int i = dist(mt);
         int j = dist(mt);
@@ -411,6 +431,6 @@ void Saper::boot_turn() {
             leftMouseCell(i, j);
             return;
         }
-    }
+    }*/
 
 }
